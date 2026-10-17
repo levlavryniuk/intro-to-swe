@@ -1,1 +1,10 @@
 .~lock.*#
+
+# Build output and local data
+target/
+data/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
