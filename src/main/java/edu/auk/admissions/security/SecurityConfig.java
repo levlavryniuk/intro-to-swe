@@ -35,10 +35,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/applicant/**", "/applicant.html").hasRole(Roles.APPLICANT)
                         .requestMatchers("/api/staff/**", "/staff.html").hasRole(Roles.STAFF)
-                        .requestMatchers("/", "/index.html", "/signup.html", "/css/**", "/js/**",
-                                "/login", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers("/", "/index.html", "/signup.html", "/login.html", "/css/**", "/js/**",
+                                "/error", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(form -> form.successHandler(roleBasedLanding()).permitAll())
+                // People sign in with the email address they registered with.
+                .formLogin(form -> form
+                        .loginPage("/login.html")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .failureUrl("/login.html?error")
+                        .successHandler(roleBasedLanding())
+                        .permitAll())
                 .logout(logout -> logout.logoutSuccessUrl("/"))
                 // The pages call the API with fetch(); they send the token from the XSRF-TOKEN cookie.
                 .csrf(csrf -> csrf
