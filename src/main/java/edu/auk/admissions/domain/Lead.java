@@ -5,9 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /** A prospective student who sent an inquiry or registered for an event. One lead per email address. */
 @Entity
+@Table(name = "leads") // "lead" is a reserved word in MySQL 8
 public class Lead {
 
     @Id
