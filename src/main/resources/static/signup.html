@@ -9,7 +9,7 @@
 <body>
 <header class="topbar">
   <a class="brand" href="/">AUK Admissions</a>
-  <nav aria-label="Main"><a href="/login">Sign in</a></nav>
+  <nav aria-label="Main"><a href="/login.html">Sign in</a></nav>
 </header>
 
 <main>
@@ -41,7 +41,7 @@
     const msg = document.getElementById('signup-msg');
     if (showResult(form, msg, res)) {
       form.reset();
-      msg.innerHTML = 'Your account is ready. <a href="/login">Sign in</a> to start your application.';
+      msg.innerHTML = 'Your account is ready. <a href="/login.html?signedUp">Sign in</a> to start your application.';
     }
   });
 </script>

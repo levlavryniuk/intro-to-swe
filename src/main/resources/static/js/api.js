@@ -24,7 +24,7 @@ const Api = {
       return { ok: false, status: 0, data: { message: 'The server cannot be reached. Check your connection and try again.' } };
     }
     if (response.status === 401) {
-      window.location.href = '/login';
+      window.location.href = '/login.html';
       return { ok: false, status: 401, data: {} };
     }
     const text = await response.text();

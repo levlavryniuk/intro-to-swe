@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">AUK Admissions</a>
+  <nav aria-label="Main"><a href="/signup.html">Create applicant account</a></nav>
+</header>
+
+<main>
+  <section class="card" style="max-width:520px;margin:24px auto">
+    <h1>Sign in</h1>
+    <p class="lead-text">For applicants and admissions staff. Use the email address you registered with.</p>
+    <div class="msg" id="login-msg" aria-live="polite"></div>
+    <!-- Posted to Spring Security's login endpoint; field names match SecurityConfig. -->
+    <form id="login-form" method="post" action="/login">
+      <input type="hidden" name="_csrf" id="csrf">
+      <label for="li-email">Email address</label>
+      <input id="li-email" name="email" type="email" autocomplete="username" required>
+      <label for="li-password">Password</label>
+      <input id="li-password" name="password" type="password" autocomplete="current-password" required>
+      <div class="actions"><button type="submit">Sign in</button></div>
+    </form>
+    <p style="margin-top:20px">Don't have an account yet? <a href="/signup.html">Create an applicant account</a></p>
+  </section>
+</main>
+
+<script src="/js/api.js"></script>
+<script>
+  document.getElementById('csrf').value = Api.csrfToken();
+  document.getElementById('login-form').addEventListener('submit', () => {
+    // The cookie may have been set after the page loaded.
+    document.getElementById('csrf').value = Api.csrfToken();
+  });
+  const params = new URLSearchParams(location.search);
+  const msg = document.getElementById('login-msg');
+  if (params.has('error')) {
+    showMessage(msg, 'The email address or password is not correct. Check them and try again.', 'err');
+  } else if (params.has('logout')) {
+    showMessage(msg, 'You have signed out.', 'ok');
+  } else if (params.has('signedUp')) {
+    showMessage(msg, 'Your account is ready. Sign in to start your application.', 'ok');
+  }
+  document.getElementById('li-email').focus();
+</script>
+</body>
+</html>

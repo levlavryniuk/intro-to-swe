@@ -67,6 +67,7 @@ Anyone can also create a new applicant account on the site.
 |---|---|---|
 | `/` | Visitor | UC-1 Submit Inquiry, UC-2 Register for Event |
 | `/signup.html` | Visitor | creates an applicant account (local sign-in) |
+| `/login.html` | Applicant, staff | sign in with email address and password |
 | `/applicant.html` | Applicant | UC-3 Submit, UC-4 Edit, UC-5 Withdraw, UC-6 Track Application Status |
 | `/staff.html` | Staff | UC-7 to UC-14, and UC-15 runs when an applicant is accepted |
 
@@ -92,7 +93,7 @@ The operations the class diagram puts on `Applicant` and `StaffMember` (for exam
 ./mvnw test
 ```
 
-75 tests: unit tests of the domain rules, and tests that start the whole module and call the REST API
+80 tests: unit tests of the domain rules, sign-in tests, and tests that start the whole module and call the REST API
 the way the pages do. Each test name starts with the test case ID from the functional test plan
 (`docs/phase-2/functional-test-plan.docx`), e.g. `TC-3.4 A file that is not a PDF is rejected`.
 
