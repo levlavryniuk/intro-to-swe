@@ -20,7 +20,9 @@ docs/phase-2/             Phase II: functional test plan
 
 ## Running it
 
-You need **JDK 17 or newer** (`java -version`). The Maven wrapper does the rest.
+You need **JDK 17 or newer**. The Maven wrapper does the rest. It uses the JDK in `JAVA_HOME` if that is
+set, otherwise `java` on your PATH, so check whichever one applies (an old Java 8 on PATH is a common
+cause of "release version 17 not supported"). Tested with JDK 17, 24 and 25.
 
 ### With MySQL (the project's database)
 

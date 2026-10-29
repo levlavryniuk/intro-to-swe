@@ -26,6 +26,7 @@
       <p><span id="st-badge"></span></p>
       <div id="st-condition" class="msg warn hidden"></div>
       <dl class="details" id="st-details"></dl>
+      <p class="hint hidden" id="st-locked"></p>
       <div class="actions">
         <button type="button" id="edit-btn" class="secondary hidden">Edit application</button>
         <button type="button" id="withdraw-btn" class="danger hidden">Withdraw</button>
@@ -153,15 +154,18 @@
 
   async function loadPrograms() {
     const res = await Api.get('/api/public/programs');
-    programs = (res.data || []).filter(p => p.open);
+    programs = res.data || [];
     const select = form.elements.programId;
+    // Closed programs stay in the list so the applicant sees why they cannot apply (UC-3 step 3).
     programs.forEach(p => {
       const o = document.createElement('option');
       o.value = p.id;
-      o.textContent = p.name + ' (deadline ' + fmtDate(p.deadline) + ')';
+      o.disabled = !p.open;
+      o.textContent = p.name + (p.open ? ' (deadline ' + fmtDate(p.deadline) + ')'
+        : p.deadline ? ' (closed, deadline was ' + fmtDate(p.deadline) + ')' : ' (not open for applications yet)');
       select.appendChild(o);
     });
-    if (programs.length === 0) {
+    if (!programs.some(p => p.open)) {
       showMessage(document.getElementById('form-msg'), 'No program is accepting applications right now.', 'warn');
     }
   }
@@ -242,6 +246,12 @@
       ? '<p class="empty">No decision emails yet.</p>'
       : view.decisionEmails.map(m => '<h3>' + esc(m.subject) + '</h3><p class="hint">' + esc(fmtDateTime(m.sentAt)) + '</p>'
           + '<p style="white-space:pre-line">' + esc(m.body) + '</p>').join('');
+    // UC-4 step 3: say why editing is no longer possible once the deadline has passed.
+    const locked = document.getElementById('st-locked');
+    const deadlinePassed = a.status === 'SUBMITTED' && !a.canEdit;
+    locked.classList.toggle('hidden', !deadlinePassed);
+    locked.textContent = deadlinePassed
+      ? 'The application deadline for ' + a.program.name + ' has passed, so the application can no longer be edited.' : '';
     document.getElementById('edit-btn').classList.toggle('hidden', !a.canEdit);
     document.getElementById('withdraw-btn').classList.toggle('hidden', !a.canWithdraw);
     document.getElementById('status-view').classList.remove('hidden');
