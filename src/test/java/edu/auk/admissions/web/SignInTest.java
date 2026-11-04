@@ -1,34 +1,27 @@
 package edu.auk.admissions.web;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
 
-/** Local sign-in: people sign in with the email address they registered with. */
+/** Local sign-in used by the React app: people sign in with the email address they registered with. */
 class SignInTest extends ApiTestBase {
 
     @Test
-    @DisplayName("The sign-in page is public and asks for an email address")
-    void signInPage() throws Exception {
-        mvc.perform(get("/login.html"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("name=\"email\"")))
-                .andExpect(content().string(Matchers.containsString("/signup.html")));
-    }
-
-    @Test
-    @DisplayName("Pages that need an account send visitors to the sign-in page")
-    void redirectToSignIn() throws Exception {
-        mvc.perform(get("/applicant.html").accept(MediaType.TEXT_HTML))
-                .andExpect(redirectedUrl("http://localhost/login.html"));
+    @DisplayName("Every page of the React app is served to visitors; the data behind them stays protected")
+    void appPagesArePublic() throws Exception {
+        for (String page : SpaController.ROUTES) {
+            mvc.perform(get(page)).andExpect(status().isOk()).andExpect(forwardedUrl("/index.html"));
+        }
+        mvc.perform(get("/api/staff/overview")).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -39,20 +32,29 @@ class SignInTest extends ApiTestBase {
                 .andExpect(status().isCreated());
 
         mvc.perform(formLogin("/login").userParameter("email").user(email).password("secret-pass-1"))
-                .andExpect(redirectedUrl("/applicant.html"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("APPLICANT"));
     }
 
     @Test
-    @DisplayName("Staff land on the staff page after signing in")
+    @DisplayName("Staff are told they signed in as staff")
     void staffSignsIn() throws Exception {
         mvc.perform(formLogin("/login").userParameter("email").user(staffEmail).password("password-123"))
-                .andExpect(redirectedUrl("/staff.html"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("STAFF"));
     }
 
     @Test
-    @DisplayName("A wrong password returns to the sign-in page with an error")
+    @DisplayName("A wrong password is refused with a message")
     void wrongPassword() throws Exception {
         mvc.perform(formLogin("/login").userParameter("email").user(staffEmail).password("wrong"))
-                .andExpect(redirectedUrl("/login.html?error"));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("The email address or password is not correct. Check them and try again."));
+    }
+
+    @Test
+    @DisplayName("Signing out answers 204 No Content")
+    void signOut() throws Exception {
+        mvc.perform(post("/logout").with(asStaff()).with(csrf())).andExpect(status().isNoContent());
     }
 }

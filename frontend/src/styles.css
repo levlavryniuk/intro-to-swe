@@ -174,3 +174,5 @@ dl.details dd { margin: 0; }
 
 /* Dates stay on one line in tables. */
 td:first-child { white-space: nowrap; }
+
+.card.narrow { max-width: 520px; margin: 24px auto; }
